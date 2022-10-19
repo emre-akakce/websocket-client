@@ -7,20 +7,21 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [messages, setMessages] = useState([])
 
+  client.onmessage = (message) => {
+    const dataFromServer = JSON.parse(message.data);
+    console.log('got reply! ', dataFromServer);
+    if (dataFromServer.type === "message") {
+      const newList = [
+        ...messages,
+        {msg: dataFromServer.msg, user: dataFromServer.user}
+      ]
+      setMessages(newList)
+    }
+  };
+
   useEffect(() => {
     client.onopen = () => {
       console.log('WebSocket Client Connected');
-    };
-    client.onmessage = (message) => {
-      const dataFromServer = JSON.parse(message.data);
-      console.log('got reply! ', dataFromServer);
-      if (dataFromServer.type === "message") {
-        const newList = [
-          ...messages,
-          {msg: dataFromServer.msg, user: dataFromServer.user}
-        ]
-        setMessages(newList)
-      }
     };
   }, [])
 
@@ -32,13 +33,6 @@ function App() {
       msg: value,
       user: username
     })) 
-    
-/* 
-    const newList = [
-      ...messages,
-      {msg: "fdgd", user: "gfdgfd"}
-    ]
-    setMessages(newList) */
   }
 
   function handleSubmit(username) {
